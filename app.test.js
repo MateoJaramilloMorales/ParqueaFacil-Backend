@@ -1,4 +1,14 @@
 // app.test.js
+
+// 🔌 Inyección global de WebSocket simulado para evadir las restricciones de entorno de Supabase en GitHub Actions
+if (!global.WebSocket) {
+  global.WebSocket = class {
+    constructor() {}
+    close() {}
+    send() {}
+  };
+}
+
 const request = require('supertest');
 const app = require('./index');
 
@@ -200,7 +210,7 @@ describe('🧪 PRUEBAS UNITARIAS Y COBERTURA GLOBAL CRÍTICA: PARQUEAFÁCIL', ()
   it('Debería extender el tiempo de una reserva activa sumando horas', async () => {
     const res = await request(app)
       .post('/extender-reserva/1')
-      .send({ horas: 2, tiempoHoras: 2 }); // Cubre ambas opciones comunes de nombres de campo
+      .send({ horas: 2, tiempoHoras: 2 });
     expect([200, 400]).toContain(res.statusCode);
   });
 
