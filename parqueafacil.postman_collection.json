@@ -1,0 +1,262 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
+		"name": "ParqueaFácil API - Backend Colección",
+		"description": "Colección oficial de endpoints para el proyecto de grado ParqueaFácil. Incluye flujos de autenticación, gestión de parqueaderos y control de reservas.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Autenticación",
+			"item": [
+				{
+					"name": "Registro Conductor (Driver)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Juan Conductor\",\n    \"email\": \"juan.driver@correo.com\",\n    \"password\": \"Miclave123\",\n    \"rol\": \"driver\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/registro",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"registro"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Registro Administrador (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Mateo Admin\",\n    \"email\": \"mateo.admin@correo.com\",\n    \"password\": \"Admin2026\",\n    \"rol\": \"admin\",\n    \"codigo_admin\": \"PARQUEA2026\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/registro",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"registro"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Parqueaderos",
+			"item": [
+				{
+					"name": "Listar Parqueaderos (Medellín)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/parqueaderos",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"parqueaderos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Crear Nuevo Parqueadero",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Parqueadero Central Berrio\",\n    \"direccion\": \"Calle 50 #49-12\",\n    \"cupos_totales\": 30,\n    \"cupos_disponibles\": 30,\n    \"lat\": 6.2511,\n    \"lng\": -75.5639,\n    \"precio\": 4500,\n    \"metodo_pago\": \"efectivo\",\n    \"admin_email\": \"mateo.admin@correo.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/parqueaderos",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"parqueaderos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Mis Parqueaderos (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/mis-parqueaderos/mateo.admin@correo.com",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"mis-parqueaderos",
+								"mateo.admin@correo.com"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar Estado Operación",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"estado_operacion\": \"abierto\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/parqueaderos/1/estado",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"parqueaderos",
+								"1",
+								"estado"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Reservas",
+			"item": [
+				{
+					"name": "Reservar un Cupo",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 1,\n    \"cantidad\": 1,\n    \"tiempoHoras\": 2,\n    \"tipo\": \"carro\",\n    \"usuario_email\": \"juan.driver@correo.com\",\n    \"usuario_nombre\": \"Juan Conductor\",\n    \"metodo\": \"efectivo\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/reservar-cupo",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"reservar-cupo"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Consultar Reserva Activa por Cliente",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/reserva-activa/juan.driver@correo.com",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"reserva-activa",
+								"juan.driver@correo.com"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Extender Tiempo de Reserva",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"horas\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/extender-reserva/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"extender-reserva",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cancelar Reserva",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/cancelar-reserva/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"cancelar-reserva",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3001",
+			"type": "string"
+		}
+	]
+}
