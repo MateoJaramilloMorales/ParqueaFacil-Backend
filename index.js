@@ -8,15 +8,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// --- CONFIGURACIÓN DE SUPABASE ---
-const SB_URL = 'https://bnjmejydokzxkqpfqeea.supabase.co';
+// --- CONFIGURACIÓN DE SUPABASE ADAPTADA A ENTORNO EN LA NUBE ---
+const SB_URL = process.env.SUPABASE_URL || 'https://bnjmejydokzxkqpfqeea.supabase.co';
 const SB_KEY = process.env.SUPABASE_KEY; 
 const supabase = createClient(SB_URL, SB_KEY);
 
 const SALT_ROUNDS = 10; // Fuerza de encriptación para bcrypt
 
-// REGLA DE NEGOCIO: Token maestro obligatorio para el rol de dueño en el Servidor
-const CODIGO_DUEÑO_VALIDO = "PARQUEA2026";
+// REGLA DE NEGOCIO: Enlace directo con la variable CODIGO_ADMIN configurada en Render
+const CODIGO_DUEÑO_VALIDO = process.env.CODIGO_ADMIN || "PARQUEA2026";
 
 // ==========================================
 // --- MÉTODOS GET (Consultas) --------------
@@ -64,7 +64,6 @@ app.get('/mis-reservas/:email', async (req, res) => {
     }
     
     try {
-        // Paso 1: Mapear los parqueaderos que pertenecen a este administrador
         const { data: misParqueaderos, error: pError } = await supabase
             .from('parqueaderos')
             .select('id, nombre')
@@ -75,10 +74,8 @@ app.get('/mis-reservas/:email', async (req, res) => {
             return res.json([]); 
         }
 
-        // Extraer lista limpia de IDs (Ej: [12, 15, 23])
         const listaIds = misParqueaderos.map(p => p.id);
 
-        // Paso 2: Traer reservas exclusivas asociadas a la lista de parqueaderos del dueño
         const { data: reservas, error: rError } = await supabase
             .from('reservas')
             .select('*')
@@ -87,7 +84,6 @@ app.get('/mis-reservas/:email', async (req, res) => {
 
         if (rError) return res.status(400).json({ error: rError.message });
 
-        // Paso 3: Acoplar de manera limpia el objeto "parqueaderos: { nombre }"
         const resultadoAdaptado = reservas.map(r => {
             const pEncontrado = misParqueaderos.find(p => p.id === r.parqueadero_id);
             return {
@@ -244,7 +240,7 @@ app.post('/login', async (req, res) => {
     res.json(usuarioSeguro);
 });
 
-// Autenticación: Registro con hasheo de contraseñas de seguridad y validación de rol
+// Autenticación: Registro Seguro con Variables Vinculadas
 app.post('/registro', async (req, res) => {
     const { nombre, email, password, rol, codigo_admin } = req.body;
     
@@ -252,12 +248,12 @@ app.post('/registro', async (req, res) => {
         return res.status(400).json({ error: "Todos los campos (nombre, email, password, rol) son obligatorios." });
     }
 
-    // 🛡️ CAPA DE SEGURIDAD AVANZADA: Control de roles e interceptación estricta del token maestro en Backend
+    // 🛡️ CAPA DE SEGURIDAD REVISADA: Validación estricta con la constante del entorno
     if (rol === 'admin') {
         if (!codigo_admin) {
             return res.status(400).json({ error: "El código de acceso es requerido para registrarse como Dueño." });
         }
-        if (codigo_admin.trim().toUpperCase() !== CODIGO_DUEÑO_VALIDO) {
+        if (codigo_admin.trim().toUpperCase() !== CODIGO_DUEÑO_VALIDO.trim().toUpperCase()) {
             return res.status(403).json({ error: "Código de acceso inválido. No tienes autorización corporativa." });
         }
     }
@@ -276,7 +272,6 @@ app.post('/registro', async (req, res) => {
             .select();
 
         if (error) {
-            // Código de error típico para registros de llaves duplicadas (Unique constraint en postgres)
             if (error.code === '23505') {
                 return res.status(400).json({ error: "Este correo electrónico ya se encuentra registrado." });
             }
@@ -370,7 +365,6 @@ app.post('/reservar-cupo', async (req, res) => {
             .eq('id', id);
 
         setTimeout(async () => {
-            // Liberación automática al expirar el tiempo establecido
             const { data: reservaActual } = await supabase.from('reservas').select('estado').eq('id', resData[0].id).single();
             if (reservaActual && reservaActual.estado === 'activa') {
                 const { data: pCheck } = await supabase.from('parqueaderos').select('cupos_disponibles').eq('id', id).single();
@@ -484,13 +478,10 @@ app.post('/liberar-cupo', async (req, res) => {
 // --- MÉTODOS PUT (Actualizaciones) --------
 // ==========================================
 
-// 🔄 GESTIÓN DE PERFILES: Actualiza Nombre y Contraseña. Correo Electrónico Bloqueado.
+// GESTIÓN DE PERFILES: Actualiza Nombre y Contraseña. Correo Electrónico Bloqueado.
 app.put('/usuarios/:email', async (req, res) => {
     const emailUsuario = req.params.email.trim().toLowerCase();
     const { nombre, password } = req.body;
-    
-    console.log(`=== ACTUALIZACIÓN DE PERFIL (SOLO NOMBRE/PASSWORD) ===`);
-    console.log(`Usuario a editar: ${emailUsuario}`);
 
     try {
         let updateData = {};
@@ -535,7 +526,6 @@ app.put('/usuarios/:email', async (req, res) => {
         });
 
     } catch (e) {
-        console.error("❌ Error al actualizar el perfil:", e.message);
         res.status(500).json({ success: false, error: "Error interno del servidor." });
     }
 });
@@ -622,7 +612,6 @@ app.delete('/borrar-reserva/:id', async (req, res) => {
 });
 
 // --- INICIALIZACIÓN DEL ENTORNO ADAPTADA PARA PRODUCCIÓN ---
-// process.env.PORT permite que la nube (Render/Railway) asigne el puerto dinámico de forma automática
 const PORT = process.env.PORT || 3001;
 
 app.listen(PORT, '0.0.0.0', () => {
