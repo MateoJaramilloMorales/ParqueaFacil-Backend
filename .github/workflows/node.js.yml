@@ -1,0 +1,37 @@
+name: 🧪 CI/CD Pipeline - ParqueaFácil Backend
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+    - name: ⬇️ Clonar repositorio
+      uses: actions/checkout@v4
+
+    - name: 🟢 Configurar Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: 📦 Instalar dependencias
+      run: npm install
+
+    - name: 🧪 Ejecutar Pruebas Unitarias y Cobertura
+      run: npm test -- --coverage --forceExit
+      env:
+        # 🔐 Aquí inyectamos variables dummy seguras para que Jest no falle por falta de archivo .env en GitHub
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://fakedurlparqueafacil.supabase.co' }}
+        SUPABASE_KEY: ${{ secrets.SUPABASE_KEY || 'faked_key_for_testing_purposes_ci_cd' }}
+        PORT: 3001
+        JWT_SECRET: 'clave_secreta_pruebas_ci_cd_2026'

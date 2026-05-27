@@ -618,3 +618,5 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log(`✅ SERVIDOR PARQUEAFÁCIL DESPLEGADO EXITOSAMENTE`);
     console.log(`🚀 Escuchando peticiones globales en el puerto: ${PORT}`);
 });
+
+module.exports = app;
