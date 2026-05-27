@@ -24,14 +24,16 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
 
+    - name: 🔍 Verificar estructura de archivos en la nube
+      run: ls -la
+
     - name: 📦 Instalar dependencias
       run: npm install
 
     - name: 🧪 Ejecutar Pruebas Unitarias y Cobertura
       run: npm test -- --coverage --forceExit
       env:
-        # 🔐 Aquí inyectamos variables dummy seguras para que Jest no falle por falta de archivo .env en GitHub
-        SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://fakedurlparqueafacil.supabase.co' }}
-        SUPABASE_KEY: ${{ secrets.SUPABASE_KEY || 'faked_key_for_testing_purposes_ci_cd' }}
+        SUPABASE_URL: 'https://fakedurlparqueafacil.supabase.co'
+        SUPABASE_KEY: 'faked_key_for_testing_purposes_ci_cd'
         PORT: 3001
         JWT_SECRET: 'clave_secreta_pruebas_ci_cd_2026'
